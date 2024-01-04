@@ -1,1 +1,74 @@
-# br
+import requests
+import os
+from pystyle import Box
+from bs4 import BeautifulSoup
+import json
+import websocket
+
+
+os.system('clear')
+print(Box.Lines("Baccarat formula SA and SEXY"))
+print(Box.DoubleCube("การลงทุนมีความเสี่ยงสูตรไม่ได้ตรง100%"))
+
+hh = input("กรุณาเลือกค่าย sagame or aesexy: ")
+gg = input("กรุณาเลือกห้อง: ")
+
+
+def display_table_data(table_data):
+    if 'banker' in table_data and 'player' in table_data and 'tie' in table_data and 'total' in table_data:
+        os.system('clear')
+        print(Box.Lines(f"ค่าย {hh}\nห้องที่ {gg}"))
+        print(f'Banker: {table_data["banker"]}')
+        print(f'Player: {table_data["player"]}')
+        print(f'Tie: {table_data["tie"]}')
+        print(f'Total: {table_data["total"]}')
+        next_step_text = 'Player' if table_data["next_step"] == "0" else 'Banker'
+        print(f'Next Step: {next_step_text}')
+
+        print(f'Win Percentage: {table_data["percen_win"]}%')
+        print('History Status:')
+        if 'history_status' in table_data:
+            for item in table_data["history_status"]:
+                if 'status' in item and 'tob' in item:
+                    print(f'{item["status"]} - TOB: {item["tob"]}')
+
+        print('Result:')
+        if 'result' in table_data:
+            for result in table_data["result"]:
+                if 'result' in result:
+                    result_text = f'Result: {result["result"]}'
+                    print(result_text)
+                    
+    else:
+        print('Invalid table_data structure.')
+# ฟังก์ชันที่ใช้เป็น callback ใน WebSocket
+def on_message(ws, message):
+    # แปลงข้อมูล JSON
+    data = json.loads(message)
+
+    # เรียกใช้ display_table_data โดยตรงกับข้อมูลที่ต้องการ
+    if f'table{gg}se' in data:
+        display_table_data(data[f'table{gg}se'])
+
+
+def on_error(ws, error):
+    print(f"WebSocket error: {error}")
+
+def on_close(ws, close_status_code, close_msg):
+    print(f"WebSocket closed with code {close_status_code}: {close_msg}")
+
+# ฟังก์ชันอัปเดตข้อมูล
+def update_data():
+    # เรียกใช้งาน WebSocket
+    ws_url = f'ws://{hh}.xn--22ca7ca6f5bxhc2bb3ark.com/'
+    try:
+        ws = websocket.WebSocketApp(ws_url, 
+                                     on_message=on_message, 
+                                     on_error=on_error, 
+                                     on_close=on_close)
+        ws.run_forever()
+    except Exception as e:
+        print(f"Error connecting to WebSocket: {e}")
+
+# เรียกใช้งานฟังก์ชันอัปเดตข้อมูล
+update_data()
